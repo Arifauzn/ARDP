@@ -35,9 +35,6 @@ if ($eventId > 0) {
     while ($row = $ticketResult->fetch_assoc()) {
         $tickets[] = $row;
     }
-
-    // Add the existing image path to the form data
-    $existingImagePath = htmlspecialchars($event['image_path']);
 } else {
     echo "Invalid Event ID.";
     exit;
@@ -57,7 +54,6 @@ if ($eventId > 0) {
         <h2 class="text-center">Update Event</h2>
         <form action="update_event_process.php" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="event_id" value="<?php echo $eventId; ?>">
-            <input type="hidden" name="existing_image_path" value="<?php echo $existingImagePath; ?>">
             <div class="mb-3">
                 <label for="name" class="form-label">Event Name</label>
                 <input type="text" class="form-control" id="name" name="name" value="<?php echo htmlspecialchars($event['name']); ?>" required>
@@ -71,9 +67,22 @@ if ($eventId > 0) {
                 <input type="date" class="form-control" id="eventDate" name="event_date" value="<?php echo htmlspecialchars($event['event_date']); ?>" required>
             </div>
             <div class="mb-3">
-                <label for="image" class="form-label">Change Event Image</label>
-                <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                <small class="form-text text-muted">Leave blank if you do not want to change the image.</small>
+                <label for="price" class="form-label">Price (in USD)</label>
+                <input type="number" class="form-control" id="price" name="price" value="<?php echo htmlspecialchars($event['price']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="currency" class="form-label">Currency</label>
+                <select class="form-control" id="currency" name="currency" required>
+                    <option value="USD" <?php echo ($event['currency'] == 'USD') ? 'selected' : ''; ?>>USD</option>
+                    <option value="EUR" <?php echo ($event['currency'] == 'EUR') ? 'selected' : ''; ?>>EUR</option>
+                    <option value="GBP" <?php echo ($event['currency'] == 'GBP') ? 'selected' : ''; ?>>GBP</option>
+                    <option value="JPY" <?php echo ($event['currency'] == 'JPY') ? 'selected' : ''; ?>>JPY</option>
+                    <option value="MYR" <?php echo ($event['currency'] == 'MYR') ? 'selected' : ''; ?>>MYR</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="convertedPrice" class="form-label">Converted Price</label>
+                <input type="number" class="form-control" id="convertedPrice" name="convertedPrice" value="<?php echo htmlspecialchars($event['converted_price']); ?>" required>
             </div>
             <div id="ticketOptions">
                 <h4>Ticket Options</h4>
@@ -93,6 +102,30 @@ if ($eventId > 0) {
     </div>
 
     <script>
+        const exchangeRates = {
+            'USD': 1,
+            'EUR': 0.85, // Example conversion rate
+            'GBP': 0.75,
+            'JPY': 110.0,
+            'MYR': 4.47
+            // Add more currencies and their rates
+        };
+
+        document.getElementById('price').addEventListener('input', convertPrice);
+        document.getElementById('currency').addEventListener('change', convertPrice);
+
+        function convertPrice() {
+            const price = parseFloat(document.getElementById('price').value);
+            const currency = document.getElementById('currency').value;
+            
+            if (!isNaN(price)) {
+                const convertedPrice = price * exchangeRates[currency];
+                document.getElementById('convertedPrice').value = convertedPrice.toFixed(2);
+            } else {
+                document.getElementById('convertedPrice').value = '';
+            }
+        }
+
         function addTicketOption() {
             const ticketOptionsDiv = document.getElementById('ticketOptions');
             const ticketCount = ticketOptionsDiv.getElementsByClassName('ticket-option').length + 1;

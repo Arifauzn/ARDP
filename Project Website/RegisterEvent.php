@@ -8,7 +8,6 @@ if (!isset($_SESSION['user_id'])) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,7 +70,7 @@ if (!isset($_SESSION['user_id'])) {
             </div>
             <div class="mb-3">
                 <label for="price" class="form-label">Price (in USD)</label>
-                <input type="number" class="form-control" id="price" name="price" required>
+                <input type="number" class="form-control" id="price" name="price" value="0" required>
             </div>
             <div class="mb-3">
                 <label for="currency" class="form-label">Currency</label>
@@ -94,7 +93,8 @@ if (!isset($_SESSION['user_id'])) {
                     <label for="ticketType1" class="form-label">Ticket Type</label>
                     <input type="text" class="form-control" id="ticketType1" name="ticket_types[]" placeholder="e.g. General Admission" required>
                     <label for="ticketPrice1" class="form-label">Price (in USD)</label>
-                    <input type="number" class="form-control" id="ticketPrice1" name="ticket_prices[]" placeholder="e.g. 50" required>
+                    <input type="number" class="form-control ticket-price" id="ticketPrice1" name="ticket_prices[]" placeholder="e.g. 50" required>
+                ```html
                 </div>
             </div>
             <button type="button" class="btn btn-secondary" id="addTicket">Add Another Ticket Option</button>
@@ -133,6 +133,7 @@ if (!isset($_SESSION['user_id'])) {
                 document.getElementById('convertedPrice').value = '';
             }
         }
+
         function addTicketOption() {
             const ticketOptionsDiv = document.getElementById('ticketOptions');
             const ticketCount = ticketOptionsDiv.getElementsByClassName('ticket-option').length + 1;
@@ -143,7 +144,7 @@ if (!isset($_SESSION['user_id'])) {
                 <label for="ticketType${ticketCount}" class="form-label">Ticket Type</label>
                 <input type="text" class="form-control" id="ticketType${ticketCount}" name="ticket_types[]" placeholder="e.g. VIP" required>
                 <label for="ticketPrice${ticketCount}" class="form-label">Price (in USD)</label>
-                <input type="number" class="form-control" id="ticketPrice${ticketCount}" name="ticket_prices[]" placeholder="e.g. 100" required>
+                <input type="number" class="form-control ticket-price" id="ticketPrice${ticketCount}" name="ticket_prices[]" placeholder="e.g. 100" required>
                 <span class="remove-ticket" onclick="removeTicketOption(this)">Remove</span>
             `;
             ticketOptionsDiv.appendChild(newTicketOption);

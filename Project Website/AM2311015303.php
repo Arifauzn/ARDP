@@ -85,57 +85,77 @@ if ($userRole === 'admin') {
             <p class="text-center">One-way purchase your favourite events tickets</p>
         </div>
 
-        <!-- Display Events -->
-        <div class="container my-4">
-            <h4 class="text-center">Current Events</h4>
-            <div class="row">
-                <?php
-                // Database connection
-                $servername = "localhost"; // Change if necessary
-                $username = "root"; // Your database username
-                $password = ""; // Your database password
-                $dbname = "website"; // Your database name
+        // Display Events
+    <div class="container my-4">
+        <h4 class="text-center">Current Events</h4>
+        <div class="row">
+        <?php
+        // Database connection
+        $servername = "localhost"; // Change if necessary
+        $username = "root"; // Your database username
+        $password = ""; // Your database password
+        $dbname = "website"; // Your database name
 
-                $conn = new mysqli($servername, $username, $password, $dbname);
+        $conn = new mysqli($servername, $username, $password, $dbname);
 
-                // Check connection
-                if ($conn->connect_error) {
-                    die("Connection failed: " . $conn->connect_error);
-                }
-                // Fetch events from the database
-                $sql = "SELECT id, name, description, price, currency, converted_price, image_path FROM events";
-                $result = $conn->query($sql);
+        // Check connection
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        
+        // Fetch events from the database
+        $sql = "SELECT id, name, description, price, currency, converted_price, converted_currency, image_path FROM events";
+        $result = $conn->query($sql);
 
-                // Check if the query was successful
-                if ($result === false) {
-                        die("Error executing query: " . $conn->error);
-                    }
+        // Check if the query was successful
+        if ($result === false) {
+            die("Error executing query: " . $conn->error);
+        }
 
-                // Check if there are results
-                if ($result->num_rows > 0) {
-                // Output data of each row
-                while ($row = $result->fetch_assoc()) {
-                    echo '<div class="col-md-4 mb-4">';
-            echo '<div class="card">';
-            echo '<img src="' . htmlspecialchars($row['image_path']) . '" class="card-img-top" alt="' . htmlspecialchars($row['name']) . '" style="height: 200px; object-fit: cover;">';
-            echo '<div class="card-body">';
-            echo '<h5 class="card-title">' . htmlspecialchars($row['name']) . '</h5>';
-            echo '<p class="card-text">' . htmlspecialchars($row['description']) . '</p>';
-            echo '<p class="card-text"><strong>Price:</strong> ' . htmlspecialchars($row['price']) . ' ' . htmlspecialchars($row['currency']) . '</p>';
-            echo '<p class="card-text"><strong>Converted Price:</strong> ' . htmlspecialchars($row['converted_price']) . '</p>';
-            // Update the button to link to Payment.php with the event ID
-            echo '<a href="add_to_cart.php?event_id=' . htmlspecialchars($row['id']) . '" class="btn btn-primary">Buy Ticket</a>'; // Link to Payment.php
-            echo '</div>';
-            echo '</div>'; // Close card
-            echo '</div>'; // Close column
+        // Currency symbol mapping
+        $currencySymbols = [
+            'USD' => '$',
+            'MYR' => 'RM',
+            'JPY' => '¥',
+            'EUR' => '€',
+            'GBP' => '£',
+            // Add more currencies as needed
+        ];
+
+        // Check if there are results
+        if ($result->num_rows > 0) {
+            // Output data of each row
+            while ($row = $result->fetch_assoc()) {
+                echo '<div class="col-md-4 mb-4">';
+                echo '<div class="card">';
+                echo '<img src="' . htmlspecialchars($row['image_path']) . '" class="card-img-top" alt="' . htmlspecialchars($row['name']) . '" style="height: 200px; object-fit: cover;">';
+                echo '<div class="card-body">';
+                echo '<h5 class="card-title">' . htmlspecialchars($row['name']) . '</h5>';
+                echo '<p class="card-text">' . htmlspecialchars($row['description']) . '</p>';
+                
+                // Display original price
+                $originalCurrency = htmlspecialchars($row['currency']);
+                $originalPrice = number_format($row['price'], 2);
+                echo '<p class="card-text"><strong>Price:</strong> ' . $currencySymbols[$originalCurrency] . $originalPrice . ' ' . $originalCurrency . '</p>';
+                
+                // Display converted price
+                $convertedCurrency = htmlspecialchars($row['converted_currency']);
+                $convertedPrice = number_format($row['converted_price'], 2);
+                echo '<p class="card-text"><strong>Converted Price:</strong> ' . $currencySymbols[$convertedCurrency] . $convertedPrice . ' ' . $convertedCurrency . '</p>';
+                
+                // Update the button to link to Payment.php with the event ID
+                echo '<a href="add_to_cart.php?event_id=' . htmlspecialchars($row['id']) . '" class="btn btn-primary">Buy Ticket</a>'; // Link to Payment.php
+                echo '</div>';
+                echo '</div>'; // Close card
+                echo '</div>'; // Close column
             }
-            } else  {
+        } else {
             echo '<div class="col-12"><p class="text-center">No events found.</p></div>';
-            }
+        }
 
-                // Close the database connection
-                $conn->close();
-                ?>
+        // Close the database connection
+        $conn->close();
+        ?>
             </div> <!-- Close row -->
         </div> <!-- Close container -->
 

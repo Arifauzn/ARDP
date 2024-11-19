@@ -55,11 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($quantity > 0) {
                 $ticketType = $events[$eventId]['tickets'][$index]['type'];
                 $ticketPrice = $events[$eventId]['tickets'][$index]['price'];
+                $currency = $events[$eventId]['tickets'][$index]['currency'] ?? 'USD'; // Default to USD if currency is not set
+                
                 $_SESSION['cart'][] = [
                     'event_id' => $eventId,
                     'event_name' => $events[$eventId]['name'],
                     'type' => $ticketType,
                     'price' => $ticketPrice,
+                    'currency' => $currency,
                     'quantity' => $quantity
                 ];
             }
@@ -73,9 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Calculate total price from cart
 $totalPrice = 0;
 $totalTickets = 0;
+$currency = ''; // Initialize currency variable
+
 foreach ($_SESSION['cart'] as $item) {
     $totalPrice += $item['price'] * $item['quantity'];
     $totalTickets += $item['quantity'];
+    $currency = $item['currency']; // Get the currency from the last item
 }
 ?>
 
@@ -156,7 +162,7 @@ foreach ($_SESSION['cart'] as $item) {
                     </tbody>
                 </table>
                 <h5>Total Tickets: <?php echo htmlspecialchars($totalTickets); ?></h5>
-                <h5>Total Amount: <?php echo htmlspecialchars($totalPrice) . ' ' . htmlspecialchars($item['currency']); ?></h5>
+                <h5>Total Amount: <?php echo htmlspecialchars($totalPrice) . ' ' . htmlspecialchars($currency); ?></h5>
                 <form action="process_payment.php" method="POST">
                     <input type="hidden" name="total_amount" value="<?php echo htmlspecialchars($totalPrice); ?>">
                     <button type="submit" class="btn btn-success">Proceed to Payment</button>
